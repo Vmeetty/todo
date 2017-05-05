@@ -39,7 +39,6 @@ class ViewController: UIViewController {
     }
 }
 
-
 extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -57,11 +56,20 @@ extension ViewController: UITableViewDataSource {
 extension ViewController: SaveDelegate {
     func save(_ task: TaskModel) {
         model.append(task)
-        
         feedTableView.reloadData()
         _ = navigationController?.popViewController(animated: true)
-        
     }
+    
+//    func sendNotify(_ seconds: Int) {
+//        GenerateNotifies.sharedNotify?.schedulingNotify(inSeconds: 5, completion: { (success) in
+//            if success {
+//                print("Sended")
+//            } else {
+//                print("Failed")
+//            }
+//        })
+//    }
+    
 }
 
 

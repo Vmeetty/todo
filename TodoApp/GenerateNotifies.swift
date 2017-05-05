@@ -16,14 +16,18 @@ class GenerateNotifies {
     private init() {
     }
     
-    func schedulingNotify(inSeconds seconds: TimeInterval, contentTitle: String, contentBody: String, notifyID: String) {
+    let notifyTitle = "My app"
+    let notifyBody = "It's time to check your tasks"
+    let notifyID = "myNotify"
+    
+    func schedulingNotify(inSeconds seconds: TimeInterval, completion: (Bool) -> ()) {
         
         let currentDate = Date()
         let dueInterval = Date(timeInterval: seconds, since: currentDate)
         
         let content = UNMutableNotificationContent()
-        content.title = contentTitle
-        content.body = contentBody
+        content.title = notifyTitle
+        content.body = notifyBody
         content.sound = UNNotificationSound.default()
         
         let calendar = Calendar(identifier: .gregorian)

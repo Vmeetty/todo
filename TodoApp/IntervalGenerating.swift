@@ -1,10 +1,4 @@
-//
-//  IntervalGenerating.swift
-//  TodoApp
-//
-//  Created by vlad on 04.05.17.
-//  Copyright © 2017 vladCh. All rights reserved.
-//
+
 
 import Foundation
 import UIKit
@@ -32,56 +26,64 @@ class IntervalGenerating {
         return daysInMonth
     }
 
-    func generateInterval () -> TimeInterval {
+    func generateInterval (due: Date) -> Double {
         var currentMonths: [Int] = []
         var dueMonths: [Int] = []
         var btwMonths: [Int] = []
-        var dayCount = 0
+        var dayCount: Double = 0
         let currentDate = Date()
-        let dueDate = self.addVCObject.datePicker.date
+        let dueDate = due
         let calendar = Calendar(identifier: .gregorian)
-        let currentDay = calendar.component(.day, from: currentDate)
-        let dueDay = calendar.component(.day, from: dueDate)
-        let currentMonth = calendar.component(.month, from: currentDate)
-        let dueMonth = calendar.component(.month, from: dueDate)
-        let currentYear = calendar.component(.year, from: currentDate)
-        let dueYear = calendar.component(.year, from: dueDate)
-  
-        if dueYear == currentYear {
-            for month in currentMonth...dueMonth {
+        let currentComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: currentDate)
+        let dueComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: dueDate)
+        
+        let secondsToHours = (currentComponents.second! / 60) / 60
+        let minsToHours = currentComponents.minute! / 60
+        let firstDayHours = 24 - (currentComponents.hour! + (secondsToHours + minsToHours))
+        
+        func firstMonth (index: Int) -> Double {
+            return Double(((switchMonth(month: index) - currentComponents.day!) * 24) + firstDayHours) / Double(24)
+        }
+        
+        func otherMonthsOfCurrentYear (index: Int) -> Double {
+            return Double(switchMonth(month: index))
+        }
+
+        if dueComponents.year! == currentComponents.year! {
+            for month in currentComponents.month!...dueComponents.month! {
                 currentMonths.append(month)
             }
             for index in 0..<currentMonths.count {
                 if index == 0 {
-                    dayCount = switchMonth(month: currentMonths[index]) - currentDay
+                    dayCount = firstMonth(index: currentMonths[index])
                 } else if index == currentMonths.count - 1 {
-                    dayCount += dueDay
+                    dayCount += Double(dueComponents.day!)
                 } else {
-                    dayCount += switchMonth(month: currentMonths[index])
+                    dayCount += otherMonthsOfCurrentYear(index: currentMonths[index])
                 }
             }
-        } else if dueYear > currentYear {
-            for year in currentYear...dueYear {
-                if year == currentYear {
-                    for month in currentMonth...12 {
+        } else if dueComponents.year! > currentComponents.year! {
+            for year in currentComponents.year!...dueComponents.year! {
+                if year == currentComponents.year! {
+                    for month in currentComponents.month!...12 {
                         currentMonths.append(month)
                     }
                     for index in 0..<currentMonths.count {
                         if index == 0 {
-                            dayCount = switchMonth(month: currentMonths[index]) - currentDay
+                            dayCount = firstMonth(index: currentMonths[index])
                         }else {
-                            dayCount += switchMonth(month: currentMonths[index])
+                            dayCount += Double(switchMonth(month: currentMonths[index]))
                         }
                     }
-                }else if year == dueYear {
-                    for month in 0..<dueMonth {
+                }else if year == dueComponents.year! {
+                    for month in 0..<dueComponents.month! {
                         dueMonths.append(month)
                     }
                     for index in dueMonths {
                         if index == dueMonths.count - 1 {
-                            dayCount += dueDay
+                            dayCount += Double(dueComponents.day!) + Double(((dueComponents.hour! + (dueComponents.second! + dueComponents.minute!)) / 24))
                         } else {
-                            dayCount += switchMonth(month: dueMonths[index])
+                            dayCount += Double(switchMonth(month: dueMonths[index]))
                         }
                     }
                 }else {
@@ -89,16 +91,15 @@ class IntervalGenerating {
                         btwMonths.append(month)
                     }
                     for index in btwMonths {
-                        dayCount += switchMonth(month: btwMonths[index - 1])
+                        dayCount += Double(switchMonth(month: btwMonths[index - 1]))
                     }
                 }
             }
         } else {
             print("Wrong year")
         }
-
-        let seconds = dayCount * (60 * 60 * 24)
-        return TimeInterval(seconds)
+        let secondsCount = dayCount * (60 * 60 * 24)
+        
+        return secondsCount
     }
-    
 }
